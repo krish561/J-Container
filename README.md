@@ -34,7 +34,7 @@ We use a minimal Alpine Linux filesystem.
 ```bash
 chmod +x setup.sh
 ./setup.sh
-
+```
 2. Compile the Native Shim
 Bash
 
