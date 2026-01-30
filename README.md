@@ -79,24 +79,3 @@ The container currently shares the network stack or is isolated without a loopba
 🧠 Why this project?
 
 I built this to demystify "Container Magic." By writing the clone, setgroups, and uid_map logic manually, I gained deep insight into how the Linux Kernel handles isolation—knowledge that goes far beyond writing a Dockerfile.
-
-
-### Step 3: Save, Commit, and Push
-
-1.  **Save:** `Ctrl+O`, `Enter`, `Ctrl+X`.
-2.  **Push to GitHub:**
-    ```bash
-    git add README.md
-    git commit -m "Add documentation and roadmap"
-    git push
-    ```
-
----
-
-### You are done. 🎓
-
-You now have a clean, documented C/Java systems project on your GitHub. It is "interview ready."
-
-**Are you ready to switch gears?**
-Let's close the SSH window, go back to your Fedora machine, and start the **RAG AI Search Engine**.
-**Type "Ready" when you have your Fedora terminal open.**
