@@ -1,0 +1,11 @@
+# Ignore compiled binaries
+container-shim
+*.class
+
+# Ignore the heavy root filesystem
+rootfs/
+old_root/
+
+# Ignore OS junk
+.DS_Store
+
