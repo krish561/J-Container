@@ -36,25 +36,22 @@ chmod +x setup.sh
 ./setup.sh
 ```
 2. Compile the Native Shim
-Bash
 
+```Bash
 gcc -o container-shim container-shim.c
-
+```
 3. Run a Container
-
 Compile and run the Java Orchestrator:
-Bash
-
+```Bash
 cd java
 javac JContainer.java
 java JContainer run ../rootfs /bin/sh
-
+```
 You should see the container prompt:
-Plaintext
-
+```Plaintext
 / # id
 uid=0(root) gid=0(root) groups=0(root)
-
+```
 (Note: You are root inside the container, but an unprivileged user on the host!)
 🚧 Limitations & Roadmap
 
