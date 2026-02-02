@@ -46,7 +46,7 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 * **Podman** (Daemonless) incurs overhead from setting up the user namespace and rootless networking stack for every single run.
 
 ### 2. **Architecture Diagram**
-
+```
 +---------------------------------------------------------------+
 |                  HOST OPERATING SYSTEM (Linux)                |
 +---------------------------------------------------------------+
@@ -86,7 +86,7 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 |   +-------------------------------------------------------+   |
 |                                                               |
 +---------------------------------------------------------------+
-
+```
 ## Technical Depth Demonstrated
 
 Building J-Container required understanding:
