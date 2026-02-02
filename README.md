@@ -47,8 +47,6 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 
 ### 2. **Architecture Diagram**
 
-## 2. Architecture Diagram
-```
 +---------------------------------------------------------------+
 |                  HOST OPERATING SYSTEM (Linux)                |
 +---------------------------------------------------------------+
@@ -89,7 +87,6 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 |                                                               |
 +---------------------------------------------------------------+
 
-```
 ## Technical Depth Demonstrated
 
 Building J-Container required understanding:
