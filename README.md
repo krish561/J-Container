@@ -25,17 +25,16 @@ The project consists of two layers:
 ```
 Compared to Docker 24.0.7 on Ubuntu 24.04 (Ryzen 5, 16GB RAM):
 
-| Metric | J-Container | Docker | Improvement |
-|--------|-------------|--------|-------------|
-| Container startup | 42ms | 680ms | **16x faster** |
-| Memory overhead | 2.3MB | 12MB | **81% less** |
-| Binary size | 18KB (shim) | 110MB | Minimal footprint |
+|       Metric      | J-Container  |     Docker     |     Improvement   |
+|-------------------|--------------|----------------|-------------------|     
+| Container startup | 42ms | 680ms | **16x faster** |                   |
+| Memory overhead   | 2.3MB | 12MB | **81% less**   |                   |
+| Binary size       | 18KB (shim)  | 110MB          | Minimal footprint |
 
 *Startup time measured with `hyperfine` over 100 runs*
 ```
 
 ### 2. **Architecture Diagram**
-Add a visual flow:
 ```
 User Command → Java Orchestrator → C Shim → Linux Kernel
                      ↓
