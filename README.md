@@ -48,34 +48,48 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 ### 2. **Architecture Diagram**
 
 ## 2. Architecture Diagram
+```
++---------------------------------------------------------------+
+|                  HOST OPERATING SYSTEM (Linux)                |
++---------------------------------------------------------------+
+|                                                               |
+|   +--------------------------+                                |
+|   |  Java Orchestrator (CLI) |                                |
+|   |  (User Interaction)      |                                |
+|   +-----------+--------------+                                |
+|               | spawns                                        |
+|               v                                               |
+|   +--------------------------+                                |
+|   |  Native C Shim (Parent)  |  <--- 1. Sets up Pipe          |
+|   |  PID: 100                |                                |
+|   +-----------+--------------+                                |
+|               |                                               |
+|               | 2. clone(CLONE_NEWUSER | CLONE_NEWPID)        |
+|               |                                               |
+|               v                                               |
+|   +--------------------------+        +-------------------+   |
+|   |  Native C Shim (Child)   | <----  | UID/GID Mappings  |   |
+|   |  PID: 1 (inside ns)      |        | (Written by Parent|   |
+|   |  (BLOCKED ON READ)       |        |  while Child waits)|  |
+|   +-----------+--------------+        +-------------------+   |
+|               |                                               |
+|               | 3. unshare(CLONE_NEWNS)                       |
+|               | 4. pivot_root(rootfs)                         |
+|               | 5. mount(/proc)                               |
+|               |                                               |
+|   +-----------v-------------------------------------------+   |
+|   |             CONTAINER ISOLATION LAYER                 |   |
+|   |                                                       |   |
+|   |   +-----------------------------------------------+   |   |
+|   |   |  Target Process (/bin/sh)                     |   |   |
+|   |   |  UID: 0 (Root) | PID: 1                       |   |   |
+|   |   +-----------------------------------------------+   |   |
+|   |                                                       |   |
+|   +-------------------------------------------------------+   |
+|                                                               |
++---------------------------------------------------------------+
 
-```mermaid
-graph TD
-    subgraph Host_User_Space ["Host User Space (Unprivileged)"]
-        User([User]) -->|java JContainer run ...| Java["☕ JContainer (Java)<br>Orchestrator"]
-        Java -->|ProcessBuilder.start()| ShimParent["⚙️ C Shim (Parent)<br>(PID: 100)"]
-        
-        ShimParent --"1. clone(NEWUSER + NEWPID)"--> ShimChild
-        ShimParent --"2. newuidmap / newgidmap"--> Map["UID/GID Mapping<br>(Host User → Root)"]
-        ShimParent --"3. Write Pipe"--> Checkpoint((Checkpoint))
-    end
-
-    subgraph Container_Boundary ["📦 Container Boundary (Isolated Namespace)"]
-        ShimChild["⚙️ C Shim (Child)<br>(PID: 1)"]
-        Checkpoint --"4. Read Pipe (Unblock)"--> ShimChild
-        
-        ShimChild --"5. unshare(NEWNS)"--> MountNS["Mount Namespace"]
-        ShimChild --"6. pivot_root"--> RootFS["📂 RootFS<br>(Alpine)"]
-        ShimChild --"7. mount /proc"--> ProcFS["/proc (Isolated)"]
-        
-        ShimChild --"8. fork() + execvp()"--> Shell["🚀 Target Process<br>(/bin/sh)"]
-    end
-
-    style Java fill:#f89820,stroke:#333,stroke-width:2px,color:white
-    style ShimParent fill:#555,stroke:#333,stroke-width:2px,color:white
-    style ShimChild fill:#468499,stroke:#333,stroke-width:4px,color:white
-    style Shell fill:#2ecc71,stroke:#333,stroke-width:2px,color:white
-
+```
 ## Technical Depth Demonstrated
 
 Building J-Container required understanding:
