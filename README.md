@@ -46,7 +46,8 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 * **Podman** (Daemonless) incurs overhead from setting up the user namespace and rootless networking stack for every single run.
 
 ### 2. **Architecture Diagram**
-````mermaid`
+
+```mermaid
 graph TD
     subgraph Host_User_Space ["Host User Space (Unprivileged)"]
         User([User]) -->|java JContainer run ...| Java[("☕ JContainer (Java)<br>Orchestrator")]
@@ -71,8 +72,8 @@ graph TD
     style Java fill:#f89820,stroke:#333,stroke-width:2px,color:white
     style ShimParent fill:#555,stroke:#333,stroke-width:2px,color:white
     style ShimChild fill:#468499,stroke:#333,stroke-width:4px,color:white
-    style Shell fill:#2ecc71,stroke:#333,stroke-width:2px,color:white     
-```mermaid`    
+    style Shell fill:#2ecc71,stroke:#333,stroke-width:2px,color:white
+    
 ---
 
 ## Technical Depth Demonstrated
