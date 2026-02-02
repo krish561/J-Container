@@ -26,13 +26,13 @@ The project consists of two layers:
 J-Container was benchmarked against industry-standard engines (Docker 24.0, Podman 4.9) over **100 iterations** using `hyperfine`.
 
 **The Result:** J-Container is **~5.2x faster than Docker** and **~6.6x faster than Podman** for short-lived container tasks.
-
-|     Runtime     | Mean Startup Time | Stability (σ) | Memory (RSS) | Comparison |
-| --------------- | ----------------- | ------------- | ------------ | ---------- |
+```
+|     Runtime     | Mean Startup Time | Stability (σ) | Memory (RSS) |   Comparison   |
+| --------------- | ----------------- | ------------- | ------------ | -------------- |
 | **J-Container** |    **149.9 ms**   |   ± 16.0 ms   |    44.7 MB   | 🚀 **Fastest** |
 | **Docker**      |      778.7 ms     |   ± 102.6 ms  |    28.7 MB*  |  ~5.2x Slower  |
 | **Podman**      |      988.3 ms     |   ± 135.6 ms  |    41.9 MB   |  ~6.6x Slower  | 
-
+```
 > **Methodology:**
 > * **Benchmark:** `hyperfine --warmup 5 --runs 100 '...'`
 > * **Task:** Execute `/bin/true` (measures pure runtime initialization overhead).
@@ -46,19 +46,31 @@ Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CN
 * **Podman** (Daemonless) incurs overhead from setting up the user namespace and rootless networking stack for every single run.
 
 ### 2. **Architecture Diagram**
-```
-User Command → Java Orchestrator → C Shim → Linux Kernel
-                     ↓
-              Parse args, locate binary
-                     ↓
-              fork() + clone(NEWUSER|NEWPID)
-                     ↓
-              uid_map + gid_map (rootless)
-                     ↓
-              chroot(rootfs) + mount /proc
-                     ↓
-              execve(/bin/sh) → Container!
- ```             
+graph TD
+    subgraph Host_User_Space ["Host User Space (Unprivileged)"]
+        User([User]) -->|java JContainer run ...| Java[("☕ JContainer (Java)<br>Orchestrator")]
+        Java -->|ProcessBuilder.start()| ShimParent["⚙️ C Shim (Parent)<br>(PID: 100)"]
+        
+        ShimParent --"1. clone(NEWUSER|NEWPID)"--> ShimChild
+        ShimParent --"2. newuidmap / newgidmap"--> Map[("UID/GID Mapping<br>(Host User -> Root)")]
+        ShimParent --"3. Write Pipe"--> Checkpoint((Checkpoint))
+    end
+
+    subgraph Container_Boundary ["📦 Container Boundary (Isolated Namespace)"]
+        ShimChild["⚙️ C Shim (Child)<br>(PID: 1)"]
+        Checkpoint --"4. Read Pipe (Unblock)"--> ShimChild
+        
+        ShimChild --"5. unshare(NEWNS)"--> MountNS["Mount Namespace"]
+        ShimChild --"6. pivot_root"--> RootFS[("📂 RootFS<br>(Alpine)")]
+        ShimChild --"7. mount /proc"--> ProcFS["/proc (Isolated)"]
+        
+        ShimChild --"8. fork() + execvp()"--> Shell["🚀 Target Process<br>(/bin/sh)"]
+    end
+
+    style Java fill:#f89820,stroke:#333,stroke-width:2px,color:white
+    style ShimParent fill:#555,stroke:#333,stroke-width:2px,color:white
+    style ShimChild fill:#468499,stroke:#333,stroke-width:4px,color:white
+    style Shell fill:#2ecc71,stroke:#333,stroke-width:2px,color:white             
 ---
 
 ## Technical Depth Demonstrated
