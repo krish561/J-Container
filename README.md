@@ -1,6 +1,5 @@
 # J-Container 🐳
-![Uploading demo.gif…]()
-
+![demo](https://github.com/user-attachments/assets/5e1a2eb2-a481-4d4a-83c1-9262f6052da2)
 
 **A lightweight, rootless container runtime built from scratch in C and Java.**
 
