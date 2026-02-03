@@ -28,17 +28,28 @@ J-Container was benchmarked against industry-standard engines (Docker 24.0, Podm
 
 **The Result:** J-Container is **~5.2x faster than Docker** and **~6.6x faster than Podman** for short-lived container tasks.
 
-|     Runtime     | Mean Startup Time | Stability (σ) | Memory (RSS) |   Comparison   |
-| --------------- | ----------------- | ------------- | ------------ | -------------- |
-| **J-Container** |    **149.9 ms**   |   ± 16.0 ms   |    44.7 MB   | 🚀 **Fastest** |
-| **Docker**      |      778.7 ms     |   ± 102.6 ms  |    28.7 MB*  |  ~5.2x Slower  |
-| **Podman**      |      988.3 ms     |   ± 135.6 ms  |    41.9 MB   |  ~6.6x Slower  | 
+|     Runtime     | Mean Startup Time | Stability (σ) |   Comparison   |
+| --------------- | ----------------- | ------------- | -------------- |
+| **J-Container** |    **149.9 ms**   |   ± 16.0 ms   | 🚀 **Fastest** |
+| **Docker**      |      778.7 ms     |   ± 102.6 ms  |  ~5.2x Slower  |
+| **Podman**      |      988.3 ms     |   ± 135.6 ms  |  ~6.6x Slower  | 
 
 > **Methodology:**
 > * **Benchmark:** `hyperfine --warmup 5 --runs 100 '...'`
 > * **Task:** Execute `/bin/true` (measures pure runtime initialization overhead).
 > * **Environment:** Ubuntu Server 24.04 VM.
-> * **Memory Note:** Docker's 28.7MB represents the CLI client only; the background daemon consumes significantly more RAM. J-Container and Podman are daemonless.
+
+### Memory Breakdown
+
+| Component | J-Container | Docker | Podman |
+|-----------|-------------|--------|--------|
+| Runtime shim | **3.2 MB** | 28.7 MB (client) | 41.9 MB |
+| Orchestration | 41.5 MB (JVM) | N/A (daemon) | N/A (built-in) |
+| **Total** | 44.7 MB | 28.7 MB* + daemon | 41.9 MB |
+
+> *Docker's daemon (`dockerd` + `containerd`) consumes an additional 
+> **50-100MB** even when idle, plus per-container overhead. J-Container's 
+> JVM startup cost is one-time and shared across operations.
 
 ### 🔍 Analysis: Why is it faster?
 Modern engines like Docker and Podman prioritize feature richness (OverlayFS, CNI Networking, SECCOMP profiles) over raw speed.
